@@ -1,0 +1,19 @@
+[package]
+name = "xenon"
+version = "0.1.0"
+edition = "2021"
+authors = ["xrelkd <46590321+xrelkd@users.noreply.github.com>"]
+repository = "https://github.com/xrelkd/xenon"
+publish = false
+
+[dependencies]
+tokio = { version = "1", features = ["rt-multi-thread"] }
+
+hyper = { version = "0.14", features = ["client", "http1", "tcp"] }
+
+rustyline = "9"
+
+clap = { version = "3", features = ["derive", "env"] }
+clap_complete = "3"
+snafu = "0.7"
+
