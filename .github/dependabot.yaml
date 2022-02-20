@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: "/"
+    labels: ["A2-insubstantial", "B0-silent", "C1-low 📌"]
+    schedule:
+      interval: "daily"
+      time: "21:00"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: docker
+    directory: "/dev-support/containers/debian"
+    labels: ["A2-insubstantial", "B0-silent", "C1-low 📌"]
+    schedule:
+      interval: "daily"
+      time: "21:00"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: docker
+    directory: "/dev-support/containers/scratch"
+    labels: ["A2-insubstantial", "B0-silent", "C1-low 📌"]
+    schedule:
+      interval: "daily"
+      time: "21:00"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    labels: ["A2-insubstantial", "B0-silent", "C1-low 📌"]
+    schedule:
+      interval: "daily"
+      time: "21:00"
+    open-pull-requests-limit: 10
