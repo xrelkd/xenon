@@ -1,10 +1,13 @@
 [package]
 name = "xenon"
 version = "0.1.0"
-edition = "2021"
 authors = ["xrelkd <46590321+xrelkd@users.noreply.github.com>"]
+license = "MIT OR Apache-2.0"
+edition = "2021"
 repository = "https://github.com/xrelkd/xenon"
-publish = false
+keywords = ["rename file"]
+categories = ["accessibility"]
+readme = "README.md"
 
 [dependencies]
 tokio = { version = "1", features = ["rt-multi-thread"] }
