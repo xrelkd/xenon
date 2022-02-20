@@ -37,7 +37,14 @@ if [[ $KERNEL == "linux" ]]; then
       file
 
     ;;
+  alpine)
+    info "Using apk to install dependencies"
+    apk add --no-cache -U \
+      musl-dev \
+      make \
+      file
 
+    ;;
   *)
     error "Linux $ID is unknown, dependencies will have to be installed manually."
     exit 1
