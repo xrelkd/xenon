@@ -12,7 +12,7 @@ pub struct Command;
 impl Command {
     #[allow(clippy::unused_self)]
     pub fn run(self) -> Result<(), Error> {
-        tokio::runtime::Runtime::new().expect("Initailizing tokio runtime").block_on(async {
+        tokio::runtime::Runtime::new().expect("Initializing tokio runtime").block_on(async {
             let client = Client::new();
             let uri = Uri::from_static("http://ifconfig.me/ip");
             let resp = client.get(uri).await.context(error::GetResponseSnafu)?;
