@@ -8,7 +8,7 @@ rustPlatform.buildRustPackage rec {
 
   src = ./.;
 
-  cargoSha256 = "sha256-1Tx/UfLlZYH256P0/7H01C58/XFhjG45J2NGjhaR8xg=";
+  cargoSha256 = "sha256-vVr4/S0wW1FcQxoC8N/3mLI2i0KQUoQpvyhjL8pIcCk=";
 
   meta = with lib; {
     homepage = "https://github.com/xrelkd/xenon";
