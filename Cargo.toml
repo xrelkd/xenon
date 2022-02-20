@@ -5,6 +5,7 @@ authors = ["xrelkd <46590321+xrelkd@users.noreply.github.com>"]
 license = "MIT OR Apache-2.0"
 edition = "2021"
 repository = "https://github.com/xrelkd/xenon"
+description = "Xenon"
 keywords = ["rename file"]
 categories = ["accessibility"]
 readme = "README.md"
