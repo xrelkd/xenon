@@ -34,6 +34,7 @@ jobs:
         with:
           sh_checker_comment: true
           sh_checker_checkbashisms_enable: true
+          sh_checker_exclude: "dev-support/bin/create-package"
 
       - name: Run nixpkgs-fmt
         run: |
