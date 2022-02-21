@@ -121,7 +121,7 @@ use self::cli::Cli;
 
 fn main() {
     if let Err(err) = Cli::default().run() {
-        eprintln!("{}", err);
+        eprintln!("{err}");
         std::process::exit(-1);
     }
 }
