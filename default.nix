@@ -4,11 +4,11 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "xenon";
-  version = "0.1.0";
+  version = "0.2.0";
 
-  src = ./.;
+  src = lib.cleanSource ./.;
 
-  cargoSha256 = "sha256-vVr4/S0wW1FcQxoC8N/3mLI2i0KQUoQpvyhjL8pIcCk=";
+  cargoLock.lockFile = ./Cargo.lock;
 
   meta = with lib; {
     homepage = "https://github.com/xrelkd/xenon";
