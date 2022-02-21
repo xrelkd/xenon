@@ -11,8 +11,6 @@ on:
 
 env:
   CI: 1
-  CARGO_TERM_COLOR: always
-  NIGHTLY_TOOLCHAIN: nightly-2022-01-07
 
 jobs:
   format:
@@ -21,19 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
+      - name: Install Nix
+        uses: cachix/install-nix-action@v16
         with:
-          profile: minimal
-          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
-          override: true
+          nix_path: nixpkgs=channel:nixos-unstable
 
       - name: Install nixpkgs-fmt
-        run: |
-          if ! command -v nixpkgs-fmt &> /dev/null
-          then
-            cargo +stable install nixpkgs-fmt
-          fi
+        run: nix profile install 'nixpkgs#nixpkgs-fmt'
 
       - name: Run shfmt, shellcheck, checkbashisms
         uses: luizm/action-sh-checker@v0.3.0
