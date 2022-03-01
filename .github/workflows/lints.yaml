@@ -17,7 +17,7 @@ jobs:
     name: Lint format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install Nix
         uses: cachix/install-nix-action@v16
@@ -54,7 +54,7 @@ jobs:
     name: Lint commit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -71,7 +71,7 @@ jobs:
     name: Codespell
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: codespell-project/codespell-problem-matcher@v1
 
