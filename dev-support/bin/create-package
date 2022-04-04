@@ -14,7 +14,7 @@ RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAG
   cargo build --bin "$BINARY_NAME" --target "$TARGET" --release
 EXECUTABLE="target/$TARGET/release/$BINARY_NAME"
 
-if [[ $OS == windows-2016 ]]; then
+if [[ $OS == windows-latest ]]; then
   EXECUTABLE="$EXECUTABLE.exe"
 fi
 
@@ -35,7 +35,7 @@ ubuntu-latest | macos-latest)
   tar czf "$ARCHIVE" *
   echo "::set-output name=archive::$ARCHIVE"
   ;;
-windows-2016)
+windows-latest)
   ARCHIVE="$DIST/$PACKAGE_NAME-$VERSION-$TARGET.zip"
   7z a "$ARCHIVE" *
   echo "::set-output name=archive::$(pwd -W)/$PACKAGE_NAME-$VERSION-$TARGET.zip"
