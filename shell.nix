@@ -8,6 +8,10 @@ pkgs.mkShell rec {
 
     tokei
 
+    pkg-config
+
+    openssl
+
     jq
     nixpkgs-fmt
     shfmt
