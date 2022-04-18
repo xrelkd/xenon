@@ -1,5 +1,7 @@
 { lib
 , rustPlatform
+, openssl
+, pkg-config
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -9,6 +11,9 @@ rustPlatform.buildRustPackage rec {
   src = lib.cleanSource ./.;
 
   cargoLock.lockFile = ./Cargo.lock;
+
+  buildInputs = [ openssl ];
+  nativeBuildInputs = [ pkg-config ];
 
   meta = with lib; {
     homepage = "https://github.com/xrelkd/xenon";
