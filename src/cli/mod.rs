@@ -1,3 +1,4 @@
+mod cryptocurrency_price;
 mod myip;
 mod rename;
 
@@ -26,6 +27,9 @@ pub enum Commands {
 
     #[clap(name = "rename-file", about = "Rename a file")]
     RenameFile(rename::Command),
+
+    #[clap(name = "cryptocurrency-price", about = "Show cryptocurrency price")]
+    CryptocurrencyPrice(cryptocurrency_price::Command),
 }
 
 impl Cli {
@@ -44,6 +48,7 @@ impl Cli {
             }
             Commands::MyIp(cmd) => Ok(cmd.run()?),
             Commands::RenameFile(cmd) => Ok(cmd.run()?),
+            Commands::CryptocurrencyPrice(cmd) => Ok(cmd.run()?),
         }
     }
 }
