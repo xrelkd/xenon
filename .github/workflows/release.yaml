@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - ci/*
+      - release/*
 
 defaults:
   run:
@@ -16,37 +19,57 @@ jobs:
     strategy:
       matrix:
         target:
-          - aarch64-unknown-linux-musl
-          - armv7-unknown-linux-musleabihf
+          - aarch64-apple-darwin
+          - aarch64-unknown-linux-gnu
+          - armv7-unknown-linux-gnueabihf
           - x86_64-apple-darwin
           - x86_64-pc-windows-msvc
           - x86_64-unknown-linux-musl
 
         include:
-          - target: aarch64-unknown-linux-musl
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            target_rustflags: "--codegen target-feature=+crt-static"
+
+          - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
+            cross_compiling: true
             target_rustflags: "--codegen linker=aarch64-linux-gnu-gcc"
 
-          - target: armv7-unknown-linux-musleabihf
+          - target: armv7-unknown-linux-gnueabihf
             os: ubuntu-latest
+            cross_compiling: true
             target_rustflags: "--codegen linker=arm-linux-gnueabihf-gcc"
 
           - target: x86_64-apple-darwin
             os: macos-latest
-            target_rustflags: ""
+            cross_compiling: false
+            target_rustflags: "--codegen target-feature=+crt-static"
 
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            target_rustflags: ""
+            cross_compiling: false
+            target_rustflags: "--codegen target-feature=+crt-static"
 
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
-            target_rustflags: ""
+            cross_compiling: false
+            target_rustflags: "--codegen target-feature=+crt-static"
 
     runs-on: ${{matrix.os}}
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install needed Ubuntu dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo ./dev-support/bin/install-deps
+
+      - name: Install needed macOS dependencies
+        if: matrix.os == 'macos-latest'
+        run: |
+          ./dev-support/bin/install-deps
 
       - name: Install Rust Toolchain Components
         uses: actions-rs/toolchain@v1
@@ -56,16 +79,20 @@ jobs:
           toolchain: stable
 
       - name: Install AArch64 Toolchain
-        if: ${{ matrix.target == 'aarch64-unknown-linux-musl' }}
+        if: ${{ matrix.target == 'aarch64-unknown-linux-gnu' }}
         run: |
-          sudo apt-get update
           sudo apt-get install gcc-aarch64-linux-gnu
 
       - name: Install ARM7 Toolchain
-        if: ${{ matrix.target == 'armv7-unknown-linux-musleabihf' }}
+        if: ${{ matrix.target == 'armv7-unknown-linux-gnueabihf' }}
+        run: |
+          sudo apt-get install gcc-arm-linux-gnueabihf
+
+      - name: Install Musl
+        if: ${{ matrix.target == 'x86_64-unknown-linux-musl' }}
         run: |
           sudo apt-get update
-          sudo apt-get install gcc-arm-linux-gnueabihf
+          sudo apt-get install musl-tools
 
       - name: Create Package
         id: package
