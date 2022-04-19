@@ -4,7 +4,7 @@
 , openssl
 , pkg-config
 , libiconv
-, Security ? null
+, darwin
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -15,7 +15,8 @@ rustPlatform.buildRustPackage rec {
 
   cargoLock.lockFile = ./Cargo.lock;
 
-  buildInputs = [ openssl ] ++ lib.optional stdenv.isDarwin [ Security libiconv ];
+  buildInputs = [ openssl ]
+    ++ lib.optional stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.Security libiconv ];
 
   nativeBuildInputs = [ pkg-config ];
 
