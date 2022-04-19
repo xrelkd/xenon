@@ -1,7 +1,10 @@
-{ lib
+{ stdenv
+, lib
 , rustPlatform
 , openssl
 , pkg-config
+, libiconv
+, Security ? null
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -12,7 +15,8 @@ rustPlatform.buildRustPackage rec {
 
   cargoLock.lockFile = ./Cargo.lock;
 
-  buildInputs = [ openssl ];
+  buildInputs = [ openssl ] ++ lib.optional stdenv.isDarwin [ Security libiconv ];
+
   nativeBuildInputs = [ pkg-config ];
 
   meta = with lib; {
