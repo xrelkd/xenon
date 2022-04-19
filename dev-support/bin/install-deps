@@ -31,6 +31,7 @@ if [[ $KERNEL == "linux" ]]; then
       cmake \
       binutils \
       pkg-config \
+      libssl-dev \
       curl \
       gnupg2 \
       perl \
@@ -50,6 +51,16 @@ if [[ $KERNEL == "linux" ]]; then
     exit 1
     ;;
   esac
+
+elif [[ "$KERNEL" == "darwin" ]]; then
+  info "Using brew to install dependencies"
+
+  if ! which brew; then
+    /usr/bin/env ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  fi
+
+  brew install openssl@1.1
+
 else
   error "$KERNEL is unknown, dependencies will have to be installed manually."
   exit 1
