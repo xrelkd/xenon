@@ -46,10 +46,6 @@ jobs:
           dry: true
           prettier_options: --check **/*.{js,ts,md,json,yaml}
 
-      - name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
-
   commit:
     name: Lint commit
     runs-on: ubuntu-latest
@@ -63,10 +59,6 @@ jobs:
         with:
           firstParent: false
 
-      - name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
-
   codespell:
     name: Codespell
     runs-on: ubuntu-latest
@@ -77,7 +69,3 @@ jobs:
 
       - name: Codespell
         uses: codespell-project/actions-codespell@master
-
-      - name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
