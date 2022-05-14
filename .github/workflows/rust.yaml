@@ -50,11 +50,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --all --verbose
-
-      - name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
+          args: --all --check --verbose
 
   clippy:
     name: Clippy
@@ -98,10 +94,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: ${{ env.CARGO_ARGS }}
-
-      - name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
 
   test:
     name: Test
@@ -149,10 +141,6 @@ jobs:
         with:
           command: test
           args: --workspace --no-fail-fast ${{ matrix.mode == 'release' && '--release' || '' }} -- --nocapture --test -Z unstable-options --report-time
-
-      - name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
 
   miri:
     name: Miri
@@ -211,10 +199,6 @@ jobs:
           command: miri
           args: test --workspace --no-fail-fast ${{ matrix.mode == 'release' && '--release' || '' }} -- --nocapture
 
-      - name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
-
   doc:
     name: Doc
     runs-on: ubuntu-latest
@@ -253,7 +237,3 @@ jobs:
         with:
           command: doc
           args: --workspace --no-deps --bins
-
-      - name: Dump context
-        if: always()
-        uses: crazy-max/ghaction-dump-context@v1
