@@ -9,7 +9,7 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "xenon";
-  version = "0.4.0";
+  version = "0.5.0";
 
   src = lib.cleanSource ./.;
 
