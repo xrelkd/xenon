@@ -22,11 +22,10 @@
         rec {
           packages.xenon = pkgs.callPackage ./default.nix { };
           defaultPackage = packages.xenon;
-          apps.xenon = flake-utils.lib.mkApp {
+          apps.default = flake-utils.lib.mkApp {
             drv = packages.xenon;
             exePath = "/bin/xenon";
           };
-          defaultApp = apps.xenon;
           devShell = pkgs.callPackage ./shell.nix { };
 
         })) // {

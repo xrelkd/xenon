@@ -16,10 +16,10 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    #[clap(about = "Shows current version")]
+    #[clap(about = "Show current version")]
     Version,
 
-    #[clap(about = "Shows shell completions")]
+    #[clap(about = "Show shell completions")]
     Completions { shell: Shell },
 
     #[clap(name = "myip", about = "Show IP address of current host")]
