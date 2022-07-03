@@ -22,13 +22,13 @@ pub enum Commands {
     #[clap(about = "Shows shell completions")]
     Completions { shell: Shell },
 
-    #[clap(name = "myip", about = "Show IP address of current host")]
+    #[clap(name = "myip", about = "Shows IP address of current host")]
     MyIp(myip::Command),
 
-    #[clap(name = "rename-file", about = "Rename a file")]
+    #[clap(name = "rename-file", about = "Renames a file")]
     RenameFile(rename::Command),
 
-    #[clap(name = "cryptocurrency-price", about = "Show cryptocurrency price")]
+    #[clap(name = "cryptocurrency-price", about = "Shows cryptocurrency price")]
     CryptocurrencyPrice(cryptocurrency_price::Command),
 }
 
