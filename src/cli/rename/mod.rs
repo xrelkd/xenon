@@ -9,7 +9,7 @@ pub use self::error::Error;
 
 #[derive(Args, Debug)]
 pub struct Command {
-    #[clap(name = "file-name", value_hint(ValueHint::FilePath))]
+    #[arg(name = "file-name", value_hint(ValueHint::FilePath))]
     old_file_name: PathBuf,
 }
 
