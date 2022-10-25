@@ -8,14 +8,14 @@ pub use self::error::Error;
 
 #[derive(Args, Debug)]
 pub struct Command {
-    #[clap(
+    #[arg(
         name = "cryptocurrencies",
         value_delimiter = ',',
         help = "Cryptocurrency symbol list, separated with ','"
     )]
     cryptocurrencies: Vec<String>,
 
-    #[clap(
+    #[arg(
         name = "show-fallback-message",
         long = "show-fallback-message",
         help = "Show fallback message (ex: \"BTC: n/a, ETH: n/a\") while failed to fetch price \

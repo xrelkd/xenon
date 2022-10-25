@@ -4,31 +4,31 @@ mod rename;
 
 use std::io::Write;
 
-use clap::{IntoApp, Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
 
 #[derive(Debug, Parser)]
-#[clap(about, author, version)]
+#[command(about, author, version)]
 pub struct Cli {
-    #[clap(subcommand)]
+    #[command(subcommand)]
     commands: Commands,
 }
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    #[clap(about = "Show current version")]
+    #[command(about = "Show current version")]
     Version,
 
-    #[clap(about = "Show shell completions")]
+    #[command(about = "Show shell completions")]
     Completions { shell: Shell },
 
-    #[clap(name = "myip", about = "Show IP address of current host")]
+    #[command(name = "myip", about = "Show IP address of current host")]
     MyIp(myip::Command),
 
-    #[clap(name = "rename-file", about = "Rename a file")]
+    #[command(name = "rename-file", about = "Rename a file")]
     RenameFile(rename::Command),
 
-    #[clap(name = "cryptocurrency-price", about = "Show cryptocurrency price")]
+    #[command(name = "cryptocurrency-price", about = "Show cryptocurrency price")]
     CryptocurrencyPrice(cryptocurrency_price::Command),
 }
 
@@ -66,7 +66,7 @@ mod tests {
 
     #[test]
     fn test_cli_simple() {
-        match Cli::parse_from(&["program_name", "version"]).commands {
+        match Cli::parse_from(["program_name", "version"]).commands {
             Commands::Version => (),
             _ => panic!(),
         }
