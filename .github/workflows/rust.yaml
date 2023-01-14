@@ -19,7 +19,7 @@ on:
 env:
   CI: 1
   # Rust toolchain
-  NIGHTLY_TOOLCHAIN: nightly-2022-10-25
+  NIGHTLY_TOOLCHAIN: nightly-2023-01-13
   CARGO_TERM_COLOR: always
   CARGO_ARGS: --workspace --bins --examples --tests --benches --all-targets
 
