@@ -9,10 +9,11 @@ on:
       - release/*
   pull_request:
     paths:
-      - .github/**
-      - src/**
+      - "src/**"
+      - ".github/**"
       - Cargo.lock
       - Cargo.toml
+      - deny.toml
       - rust-toolchain.toml
       - rustfmt.toml
 
@@ -21,7 +22,7 @@ env:
   # Rust toolchain
   NIGHTLY_TOOLCHAIN: nightly-2023-01-13
   CARGO_TERM_COLOR: always
-  CARGO_ARGS: --workspace --bins --examples --tests --benches --all-targets
+  CARGO_ARGS: --workspace --bins --examples --tests --benches --all-targets --all-features
 
 concurrency:
   group: rust-${{ github.ref }}
@@ -50,7 +51,48 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --all --check --verbose
+          args: --all --verbose --check
+
+  udeps:
+    name: Check unused dependencies
+    runs-on: ubuntu-latest
+    needs:
+      - rustfmt
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "true"
+
+      - name: Install dependencies
+        run: |
+          sudo ./dev-support/bin/install-deps
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
+          override: true
+          components: rustfmt
+
+      - name: Pre Cache
+        run: |
+          rm -rf ~/.cargo/registry/index/ ~/.cargo/registry/cache/ ~/.cargo/git/db/
+
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run cargo-udeps
+        uses: aig787/cargo-udeps-action@v1
+        with:
+          version: latest
+          args: ${{ env.CARGO_ARGS }}
 
   clippy:
     name: Clippy
@@ -100,6 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - clippy
+      - udeps
     strategy:
       fail-fast: false
       matrix:
@@ -147,6 +190,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - clippy
+      - udeps
     env:
       CARGO_BUILD_RUSTC_WRAPPER: ""
       MIRIFLAGS: -Zmiri-symbolic-alignment-check
@@ -154,11 +198,8 @@ jobs:
       fail-fast: false
       matrix:
         toolchain:
-          # - stable
-          # - beta
           - nightly
         mode:
-          # - debug
           - release
     steps:
       - uses: actions/checkout@v3
@@ -204,8 +245,11 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - clippy
+      - udeps
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: "true"
 
       - name: Install dependencies
         run: |
@@ -236,4 +280,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --workspace --no-deps --bins
+          args: --workspace --no-deps --bins --all-features
