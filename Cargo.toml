@@ -15,7 +15,7 @@ tokio = { version = "1", features = ["rt-multi-thread"] }
 
 reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls"] }
 
-rustyline = "10"
+rustyline = "11"
 
 clap = { version = "4", features = ["derive", "env"] }
 clap_complete = "4"
