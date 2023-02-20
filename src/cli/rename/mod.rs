@@ -15,7 +15,7 @@ pub struct Command {
 
 impl Command {
     pub fn run(self) -> Result<(), Error> {
-        let mut editor = rustyline::Editor::<()>::new()?;
+        let mut editor = rustyline::Editor::<(), _>::new()?;
 
         if let Err(err) = std::fs::metadata(&self.old_file_name) {
             eprintln!("`{}` does not exist", self.old_file_name.display());
