@@ -9,13 +9,13 @@ pub use self::error::Error;
 
 #[derive(Args, Debug)]
 pub struct Command {
-    #[clap(name = "file-name", value_hint(ValueHint::FilePath))]
+    #[arg(name = "file-name", value_hint(ValueHint::FilePath))]
     old_file_name: PathBuf,
 }
 
 impl Command {
     pub fn run(self) -> Result<(), Error> {
-        let mut editor = rustyline::Editor::<()>::new();
+        let mut editor = rustyline::Editor::<(), _>::new()?;
 
         if let Err(err) = std::fs::metadata(&self.old_file_name) {
             eprintln!("`{}` does not exist", self.old_file_name.display());

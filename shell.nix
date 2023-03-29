@@ -13,6 +13,7 @@ pkgs.mkShell rec {
     openssl
 
     jq
+    treefmt
     nixpkgs-fmt
     shfmt
     nodePackages.prettier
