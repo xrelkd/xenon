@@ -1,0 +1,53 @@
+# syntax=docker/dockerfile:1.4
+
+FROM rust:alpine AS builder
+
+COPY dev-support /tmp/dev-support
+RUN <<EOF
+#!/bin/ash
+set -eu
+
+apk add --no-cache bash
+
+/tmp/dev-support/bin/install-deps
+EOF
+
+WORKDIR /build
+COPY . /build
+
+ARG BIN_NAME="xenon"
+
+RUN <<EOF
+#!/usr/bin/env bash
+
+set -eu
+
+cargo build --release
+
+cp -v target/release/${BIN_NAME} /usr/bin
+
+INITIAL_SIZE="$(sh -c 'sz="$(du -sk /usr/bin/'${BIN_NAME}')" ; echo "${sz%%[[:space:]]*}"')"
+strip /usr/bin/${BIN_NAME}
+
+FINAL_SIZE="$(sh -c 'sz="$(du -sk /usr/bin/'${BIN_NAME}')" ; echo "${sz%%[[:space:]]*}"')"
+REMOVED_SIZE=$((INITIAL_SIZE - FINAL_SIZE))
+
+echo "Cleaning process removed ${REMOVED_SIZE}KiB"
+echo "Dropped binary size from ${INITIAL_SIZE}KiB to ${FINAL_SIZE}KiB"
+
+file /usr/bin/${BIN_NAME}
+ldd /usr/bin/${BIN_NAME}
+/usr/bin/${BIN_NAME} --version
+
+EOF
+
+FROM scratch
+
+LABEL description="Container image for Xenon" \
+    io.thxnet.image.type="final" \
+    io.thxnet.image.description="Xenon" \
+    org.opencontainers.image.source="https://github.com/thxnet/xenon"
+
+COPY --from=builder /usr/bin/xenon /usr/bin/
+
+ENTRYPOINT [ "/usr/bin/xenon", "version" ]

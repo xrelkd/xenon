@@ -32,12 +32,12 @@ echo "Creating release archive..."
 case "$OS" in
 ubuntu-latest | macos-latest)
   ARCHIVE="$DIST/$PACKAGE_NAME-$VERSION-$TARGET.tar.gz"
-  tar czf "$ARCHIVE" *
+  tar czf "$ARCHIVE" -- *
   echo "::set-output name=archive::$ARCHIVE"
   ;;
 windows-latest)
   ARCHIVE="$DIST/$PACKAGE_NAME-$VERSION-$TARGET.zip"
-  7z a "$ARCHIVE" *
+  7z a "$ARCHIVE" -- *
   echo "::set-output name=archive::$(pwd -W)/$PACKAGE_NAME-$VERSION-$TARGET.zip"
   ;;
 esac
