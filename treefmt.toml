@@ -1,7 +1,6 @@
 [formatter.rust]
 command = "cargo"
 options = [
-  "+nightly-2023-01-13",
   "fmt",
   "--all",
   "--verbose",
@@ -24,6 +23,11 @@ includes = [
   "*.ts",
   "*.yaml",
 ]
+
+[formatter.hclfmt]
+command = "hclfmt"
+options = ["-w"]
+includes = ["*.hcl"]
 
 [formatter.nix]
 command = "nixpkgs-fmt"

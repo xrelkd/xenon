@@ -3,9 +3,9 @@ name: "Nix Flakes"
 on:
   push:
     branches:
-      - ci/*
       - main
       - develop
+      - ci/*
       - release/*
   pull_request:
     paths:

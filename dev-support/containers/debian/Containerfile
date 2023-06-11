@@ -1,0 +1,48 @@
+# syntax=docker/dockerfile:1.4
+
+FROM rust:slim-bullseye AS builder
+
+COPY dev-support /tmp/dev-support
+RUN /tmp/dev-support/bin/install-deps
+
+WORKDIR /build
+COPY . /build
+
+ARG BIN_NAME="xenon"
+
+RUN <<EOF
+#!/usr/bin/env bash
+
+set -eu
+
+cargo build --release
+
+cp -v target/release/${BIN_NAME} /usr/bin
+
+INITIAL_SIZE="$(sh -c 'sz="$(du -sk /usr/bin/'${BIN_NAME}')" ; echo "${sz%%[[:space:]]*}"')"
+strip /usr/bin/${BIN_NAME}
+
+FINAL_SIZE="$(sh -c 'sz="$(du -sk /usr/bin/'${BIN_NAME}')" ; echo "${sz%%[[:space:]]*}"')"
+REMOVED_SIZE=$((INITIAL_SIZE - FINAL_SIZE))
+
+echo "Cleaning process removed ${REMOVED_SIZE}KB"
+echo "Dropped binary size from ${INITIAL_SIZE}KB to ${FINAL_SIZE}KB"
+
+
+file /usr/bin/${BIN_NAME}
+ldd /usr/bin/${BIN_NAME}
+/usr/bin/${BIN_NAME} --version
+
+EOF
+
+# xenon image
+FROM  gcr.io/distroless/cc-debian11:latest
+
+LABEL description="Container image for Xenon" \
+    io.thxnet.image.type="final" \
+    io.thxnet.image.description="Xenon" \
+    org.opencontainers.image.source="https://github.com/thxnet/xenon"
+
+COPY --from=builder /usr/bin/xenon /usr/bin/
+
+ENTRYPOINT [ "/usr/bin/xenon", "version" ]

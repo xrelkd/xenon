@@ -8,13 +8,104 @@ on:
       - ci/*
       - release/*
 
+env:
+  CI: 1
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+concurrency:
+  group: image-${{ github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash
 
 jobs:
-  all:
-    name: Release
+  image:
+    name: Build and publish image
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mode:
+          - release
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "true"
+
+      - name: Install docker-buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: latest
+
+      - name: Login to the GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup container metadata
+        id: meta-scratch
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=edge
+            type=raw,enable=${{ github.event_name != 'pull_request' && !contains(github.ref, 'refs/tags/') }},value=build-{{date 'YYYY.MM.DD'}}-{{sha}}
+          flavor: |
+            latest=auto
+          bake-target: xenon
+
+      - name: Setup container metadata
+        id: meta-distroless
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=edge
+            type=raw,enable=${{ github.event_name != 'pull_request' && !contains(github.ref, 'refs/tags/') }},value=build-{{date 'YYYY.MM.DD'}}-{{sha}}
+          flavor: |
+            latest=auto
+            suffix=-distroless
+          bake-target: xenon-distroless
+
+      - name: Merge container metadata
+        run: |
+          jq 'reduce inputs as $in (.; . * $in)' \
+            ${{ steps.meta-scratch.outputs.bake-file }} \
+            ${{ steps.meta-distroless.outputs.bake-file }} > /tmp/bake-metadata.json
+
+      - name: Build container image
+        uses: docker/bake-action@v3
+        with:
+          pull: true
+          push: true
+          files: |
+            ./dev-support/containers/docker-bake.hcl
+            /tmp/bake-metadata.json
+
+      - name: Clean container metadata
+        run: |
+          rm /tmp/bake-metadata.json
+
+  program:
+    name: Build and release program
 
     strategy:
       matrix:

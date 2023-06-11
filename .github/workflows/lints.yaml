@@ -3,9 +3,9 @@ name: Lint
 on:
   push:
     branches:
-      - ci/*
       - main
       - develop
+      - ci/*
       - release/*
   pull_request:
 
@@ -24,6 +24,12 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
+      - name: Install treefmt
+        run: nix profile install 'nixpkgs#treefmt'
+
+      - name: Install prettier
+        run: nix profile install 'nixpkgs#nodePackages.prettier'
+
       - name: Install nixpkgs-fmt
         run: nix profile install 'nixpkgs#nixpkgs-fmt'
 
@@ -34,17 +40,9 @@ jobs:
         with:
           sh_checker_comment: true
           sh_checker_checkbashisms_enable: true
-          sh_checker_exclude: "dev-support/bin/create-package"
 
-      - name: Run nixpkgs-fmt
-        run: |
-          nixpkgs-fmt --check .
-
-      - name: Run prettier
-        uses: creyD/prettier_action@v4.3
-        with:
-          dry: true
-          prettier_options: --check **/*.{js,ts,md,json,yaml}
+      - name: Run treefmt
+        run: treefmt --allow-missing-formatter --fail-on-change --no-cache --formatters prettier clang-format nix shell
 
   commit:
     name: Lint commit
