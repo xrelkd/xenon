@@ -7,16 +7,21 @@
 , darwin
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage {
   pname = "xenon";
-  version = "0.5.0";
+  version = "0.6.1";
 
   src = lib.cleanSource ./.;
 
   cargoLock.lockFile = ./Cargo.lock;
 
-  buildInputs = [ openssl ]
-    ++ lib.optional stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.Security libiconv ];
+  buildInputs = [
+    openssl
+  ]
+  ++ lib.optional stdenv.hostPlatform.isDarwin [
+    darwin.apple_sdk.frameworks.Security
+    libiconv
+  ];
 
   nativeBuildInputs = [ pkg-config ];
 
