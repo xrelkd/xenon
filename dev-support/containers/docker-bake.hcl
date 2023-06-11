@@ -17,7 +17,7 @@ target "xenon" {
 }
 
 target "xenon-distroless" {
-  dockerfile = "dev-support/containers/debian/Containerfile"
-  tags       = ["${REPOSITORY}:${TAG}-bullseye-slim"]
+  dockerfile = "dev-support/containers/distroless/Containerfile"
+  tags       = ["${REPOSITORY}:${TAG}-distroless"]
   platforms  = ["linux/amd64"]
 }
