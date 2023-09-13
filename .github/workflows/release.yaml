@@ -52,7 +52,7 @@ jobs:
 
       - name: Setup container metadata
         id: meta-scratch
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -69,7 +69,7 @@ jobs:
 
       - name: Setup container metadata
         id: meta-distroless
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
