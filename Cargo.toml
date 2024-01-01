@@ -20,6 +20,6 @@ rustyline = "13"
 clap = { version = "4", features = ["derive", "env"] }
 clap_complete = "4"
 serde_json = "1"
-snafu = "0.7"
+snafu = "0.8"
 url = "2"
 
