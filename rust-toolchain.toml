@@ -1,3 +1,3 @@
 [toolchain]
-channel = "nightly-2023-06-10"
-components = [ "clippy", "rustfmt", "rust-src", "rust-std" ]
+channel    = "stable"
+components = ["clippy", "rustfmt", "rust-src", "rust-std"]

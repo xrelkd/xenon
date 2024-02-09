@@ -30,10 +30,15 @@
             ];
           };
 
-          rustToolchain = fenix.packages.${system}.fromToolchainFile {
-            file = ./rust-toolchain.toml;
-            sha256 = "sha256-0t+XYT0Om/dDfjsFljZLULbQNJ4hMysyvUnHEoAryAk=";
-          };
+          rustToolchain = with fenix.packages.${system}; combine [
+            stable.rustc
+            stable.cargo
+            stable.clippy
+            stable.rust-src
+            stable.rust-std
+
+            default.rustfmt
+          ];
 
           rustPlatform = pkgs.makeRustPlatform {
             cargo = rustToolchain;
@@ -56,22 +61,7 @@
           ];
 
           src = craneLib.cleanCargoSource (craneLib.path ./.);
-          commonArgs = {
-            inherit src;
-
-            nativeBuildInputs = with pkgs; [
-              llvmPackages_15.clang
-              llvmPackages_15.libclang
-
-              pkg-config
-              openssl
-            ];
-
-            PROTOC = "${pkgs.protobuf}/bin/protoc";
-            PROTOC_INCLUDE = "${pkgs.protobuf}/include";
-
-            LIBCLANG_PATH = "${pkgs.llvmPackages_15.libclang.lib}/lib";
-          };
+          commonArgs = { inherit src; };
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
         in
         rec {
