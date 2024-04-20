@@ -16,8 +16,8 @@
 
   outputs = { self, nixpkgs, flake-utils, fenix, crane }:
     let
+      cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
       name = "xenon";
-      version = "0.6.1";
     in
     (flake-utils.lib.eachDefaultSystem
       (system:
@@ -74,10 +74,14 @@
           packages = rec {
             default = xenon;
             xenon = pkgs.callPackage ./devshell/package.nix {
-              inherit name version rustPlatform;
+              inherit (pkgs) darwin;
+              inherit (cargoToml.package) version;
+              inherit name rustPlatform;
             };
             container = pkgs.callPackage ./devshell/container.nix {
-              inherit name version xenon;
+              inherit (pkgs) darwin;
+              inherit (cargoToml.package) version;
+              inherit name xenon;
             };
           };
 
