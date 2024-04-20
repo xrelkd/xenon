@@ -8,7 +8,7 @@
 
 dockerTools.buildImage {
   inherit name;
-  tag = "v${version}";
+  tag = version;
 
   copyToRoot = buildEnv {
     name = "image-root";

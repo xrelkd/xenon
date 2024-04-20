@@ -66,9 +66,6 @@ mod tests {
 
     #[test]
     fn test_cli_simple() {
-        match Cli::parse_from(["program_name", "version"]).commands {
-            Commands::Version => (),
-            _ => panic!(),
-        }
+        matches!(Cli::parse_from(["program_name", "version"]).commands, Commands::Version);
     }
 }

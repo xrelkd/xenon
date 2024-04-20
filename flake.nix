@@ -16,8 +16,8 @@
 
   outputs = { self, nixpkgs, flake-utils, fenix, crane }:
     let
+      cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
       name = "xenon";
-      version = "0.6.1";
     in
     (flake-utils.lib.eachDefaultSystem
       (system:
@@ -30,10 +30,15 @@
             ];
           };
 
-          rustToolchain = fenix.packages.${system}.fromToolchainFile {
-            file = ./rust-toolchain.toml;
-            sha256 = "sha256-0t+XYT0Om/dDfjsFljZLULbQNJ4hMysyvUnHEoAryAk=";
-          };
+          rustToolchain = with fenix.packages.${system}; combine [
+            stable.rustc
+            stable.cargo
+            stable.clippy
+            stable.rust-src
+            stable.rust-std
+
+            default.rustfmt
+          ];
 
           rustPlatform = pkgs.makeRustPlatform {
             cargo = rustToolchain;
@@ -56,22 +61,7 @@
           ];
 
           src = craneLib.cleanCargoSource (craneLib.path ./.);
-          commonArgs = {
-            inherit src;
-
-            nativeBuildInputs = with pkgs; [
-              llvmPackages_15.clang
-              llvmPackages_15.libclang
-
-              pkg-config
-              openssl
-            ];
-
-            PROTOC = "${pkgs.protobuf}/bin/protoc";
-            PROTOC_INCLUDE = "${pkgs.protobuf}/include";
-
-            LIBCLANG_PATH = "${pkgs.llvmPackages_15.libclang.lib}/lib";
-          };
+          commonArgs = { inherit src; };
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
         in
         rec {
@@ -84,10 +74,14 @@
           packages = rec {
             default = xenon;
             xenon = pkgs.callPackage ./devshell/package.nix {
-              inherit name version rustPlatform;
+              inherit (pkgs) darwin;
+              inherit (cargoToml.package) version;
+              inherit name rustPlatform;
             };
             container = pkgs.callPackage ./devshell/container.nix {
-              inherit name version xenon;
+              inherit (pkgs) darwin;
+              inherit (cargoToml.package) version;
+              inherit name xenon;
             };
           };
 

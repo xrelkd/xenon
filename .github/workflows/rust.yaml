@@ -34,10 +34,10 @@ jobs:
     name: Check Rust format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v21
+        uses: cachix/install-nix-action@v26
 
       - name: Show rustfmt version
         run: |
@@ -53,17 +53,17 @@ jobs:
     needs:
       - rustfmt
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v21
+        uses: cachix/install-nix-action@v26
 
       - name: Pre Cache
         run: |
           rm -rf ~/.cargo/registry/index/ ~/.cargo/registry/cache/ ~/.cargo/git/db/
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
@@ -96,17 +96,17 @@ jobs:
         mode:
           - release
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v21
+        uses: cachix/install-nix-action@v26
 
       - name: Pre Cache
         run: |
           rm -rf ~/.cargo/registry/index/ ~/.cargo/registry/cache/ ~/.cargo/git/db/
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
@@ -128,19 +128,19 @@ jobs:
     needs:
       - clippy
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: "true"
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v21
+        uses: cachix/install-nix-action@v26
 
       - name: Pre Cache
         run: |
           rm -rf ~/.cargo/registry/index/ ~/.cargo/registry/cache/ ~/.cargo/git/db/
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/

@@ -1,8 +1,10 @@
 { name
 , version
 , lib
+, stdenv
 , rustPlatform
 , installShellFiles
+, darwin
 }:
 
 rustPlatform.buildRustPackage {
@@ -14,6 +16,11 @@ rustPlatform.buildRustPackage {
   cargoLock = {
     lockFile = ../Cargo.lock;
   };
+
+  buildInputs = lib.optionals stdenv.isDarwin [
+    darwin.apple_sdk.frameworks.Security
+    darwin.apple_sdk.frameworks.SystemConfiguration
+  ];
 
   nativeBuildInputs = [ installShellFiles ];
 
