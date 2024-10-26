@@ -16,7 +16,7 @@ pkgs.runCommand "check-format"
     --allow-missing-formatter \
     --fail-on-change \
     --no-cache \
-    --formatters prettier clang-format nix shell \
+    --formatters prettier nix shell \
     -C ${./..}
 
   # it worked!
