@@ -9,14 +9,15 @@ pkgs.runCommand "check-format"
     nodePackages.prettier
     shellcheck
     shfmt
-    sleek
   ];
 } ''
   treefmt \
     --allow-missing-formatter \
     --fail-on-change \
     --no-cache \
-    --formatters prettier clang-format nix shell \
+    --formatters prettier \
+    --formatters nix \
+    --formatters shell \
     -C ${./..}
 
   # it worked!
