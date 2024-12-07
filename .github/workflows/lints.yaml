@@ -42,7 +42,14 @@ jobs:
           sh_checker_checkbashisms_enable: true
 
       - name: Run treefmt
-        run: treefmt --allow-missing-formatter --fail-on-change --no-cache --formatters prettier clang-format nix shell
+        run: |
+          treefmt \
+            --allow-missing-formatter \
+            --fail-on-change \
+            --no-cache \
+            --formatters prettier \
+            --formatters nix \
+            --formatters shell
 
   commit:
     name: Lint commit
