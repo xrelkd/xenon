@@ -18,7 +18,7 @@ reqwest = { version = "0.12", default-features = false, features = [
   "rustls-tls",
 ] }
 
-rustyline = "15"
+rustyline = "16"
 
 clap = { version = "4", features = ["derive", "env"] }
 clap_complete = "4"
