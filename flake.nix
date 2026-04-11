@@ -11,23 +11,32 @@
     crane.url = "github:ipetkov/crane";
   };
 
-  outputs = { self, nixpkgs, flake-utils, fenix, crane }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      fenix,
+      crane,
+    }:
     let
       cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
       name = "xenon";
     in
-    (flake-utils.lib.eachDefaultSystem
-      (system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays = [
-              self.overlays.default
-              fenix.overlays.default
-            ];
-          };
+    (flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [
+            self.overlays.default
+            fenix.overlays.default
+          ];
+        };
 
-          rustToolchain = with fenix.packages.${system}; combine [
+        rustToolchain =
+          with fenix.packages.${system};
+          combine [
             stable.rustc
             stable.cargo
             stable.clippy
@@ -37,74 +46,86 @@
             default.rustfmt
           ];
 
-          rustPlatform = pkgs.makeRustPlatform {
-            cargo = rustToolchain;
-            rustc = rustToolchain;
+        rustPlatform = pkgs.makeRustPlatform {
+          cargo = rustToolchain;
+          rustc = rustToolchain;
+        };
+
+        craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+
+        cargoArgs = [
+          "--workspace"
+          "--bins"
+          "--examples"
+          "--tests"
+          "--benches"
+          "--all-targets"
+        ];
+
+        unitTestArgs = [
+          "--workspace"
+        ];
+
+        src = craneLib.cleanCargoSource (craneLib.path ./.);
+        commonArgs = { inherit src; };
+        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+      in
+      rec {
+        formatter = pkgs.treefmt;
+
+        devShells.default = pkgs.callPackage ./devshell {
+          inherit rustToolchain cargoArgs unitTestArgs;
+        };
+
+        packages = rec {
+          default = xenon;
+          xenon = pkgs.callPackage ./devshell/package.nix {
+            inherit (pkgs) darwin;
+            inherit (cargoToml.package) version;
+            inherit name rustPlatform;
           };
-
-          craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
-
-          cargoArgs = [
-            "--workspace"
-            "--bins"
-            "--examples"
-            "--tests"
-            "--benches"
-            "--all-targets"
-          ];
-
-          unitTestArgs = [
-            "--workspace"
-          ];
-
-          src = craneLib.cleanCargoSource (craneLib.path ./.);
-          commonArgs = { inherit src; };
-          cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-        in
-        rec {
-          formatter = pkgs.treefmt;
-
-          devShells.default = pkgs.callPackage ./devshell {
-            inherit rustToolchain cargoArgs unitTestArgs;
+          container = pkgs.callPackage ./devshell/container.nix {
+            inherit (pkgs) darwin;
+            inherit (cargoToml.package) version;
+            inherit name xenon;
           };
+          check-format = pkgs.callPackage ./devshell/format.nix { };
+        };
 
-          packages = rec {
-            default = xenon;
-            xenon = pkgs.callPackage ./devshell/package.nix {
-              inherit (pkgs) darwin;
-              inherit (cargoToml.package) version;
-              inherit name rustPlatform;
-            };
-            container = pkgs.callPackage ./devshell/container.nix {
-              inherit (pkgs) darwin;
-              inherit (cargoToml.package) version;
-              inherit name xenon;
-            };
-          };
+        apps.default = flake-utils.lib.mkApp {
+          drv = packages.default;
+          exePath = "/bin/xenon";
+        };
 
-          apps.default = flake-utils.lib.mkApp {
-            drv = packages.default;
-            exePath = "/bin/xenon";
-          };
+        checks = {
+          format = pkgs.callPackage ./devshell/format.nix { };
 
-          checks = {
-            format = pkgs.callPackage ./devshell/format.nix { };
-
-            rust-build = craneLib.cargoBuild (commonArgs // {
+          rust-build = craneLib.cargoBuild (
+            commonArgs
+            // {
               inherit cargoArtifacts;
-            });
-            rust-format = craneLib.cargoFmt { inherit src; };
-            rust-clippy = craneLib.cargoClippy (commonArgs // {
+            }
+          );
+          rust-format = craneLib.cargoFmt { inherit src; };
+          rust-clippy = craneLib.cargoClippy (
+            commonArgs
+            // {
               inherit cargoArtifacts;
               cargoClippyExtraArgs = pkgs.lib.strings.concatMapStrings (x: x + " ") cargoArgs;
-            });
-            rust-nextest = craneLib.cargoNextest (commonArgs // {
+            }
+          );
+          rust-nextest = craneLib.cargoNextest (
+            commonArgs
+            // {
               inherit cargoArtifacts;
               partitions = 1;
               partitionType = "count";
-            });
-          };
-        })) // {
+            }
+          );
+        };
+      }
+    ))
+    // {
       overlays.default = final: prev: { };
     };
 }
