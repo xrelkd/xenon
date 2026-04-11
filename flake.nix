@@ -89,6 +89,7 @@
             inherit (cargoToml.package) version;
             inherit name xenon;
           };
+          check-format = pkgs.callPackage ./devshell/format.nix { };
         };
 
         apps.default = flake-utils.lib.mkApp {
