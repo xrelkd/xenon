@@ -3,12 +3,13 @@
 pkgs.runCommand "check-format"
   {
     buildInputs = with pkgs; [
-      treefmt
       fd
       nixfmt
       prettier
       shellcheck
       shfmt
+      taplo
+      treefmt
     ];
   }
   ''
@@ -18,6 +19,7 @@ pkgs.runCommand "check-format"
       --no-cache \
       --formatters prettier \
       --formatters nix \
+      --formatters toml \
       --formatters shell \
       -C ${./..}
 
