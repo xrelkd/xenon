@@ -1,9 +1,10 @@
-{ name
-, version
-, dockerTools
-, xenon
-, buildEnv
-, ...
+{
+  name,
+  version,
+  dockerTools,
+  xenon,
+  buildEnv,
+  ...
 }:
 
 dockerTools.buildImage {
