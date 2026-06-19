@@ -68,7 +68,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install needed Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
