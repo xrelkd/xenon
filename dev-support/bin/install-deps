@@ -59,7 +59,7 @@ elif [[ "$KERNEL" == "darwin" ]]; then
     /usr/bin/env ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
   fi
 
-  brew install openssl@1.1
+  brew install openssl@4
 
 else
   error "$KERNEL is unknown, dependencies will have to be installed manually."
