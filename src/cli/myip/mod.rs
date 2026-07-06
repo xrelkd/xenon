@@ -14,7 +14,7 @@ impl Command {
     pub fn run(self) -> Result<(), Error> {
         tokio::runtime::Runtime::new().expect("Initializing tokio runtime").block_on(async {
             let client = Client::new();
-            let url = Url::parse("http://ifconfig.me/ip").expect("a valid URL");
+            let url = Url::parse("http://checkip.amazonaws.com").expect("a valid URL");
             let resp = client
                 .get(url)
                 .send()
@@ -24,7 +24,7 @@ impl Command {
                 .await
                 .context(error::ParseTextSnafu)?;
 
-            println!("{resp}");
+            println!("{}", resp.trim());
 
             Ok(())
         })
