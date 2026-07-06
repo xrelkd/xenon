@@ -8,4 +8,7 @@ pub enum Error {
 
     #[snafu(display("Error occurs while parsing text from HTTP response, error: {source}"))]
     ParseText { source: reqwest::Error },
+
+    #[snafu(display("Empty response from provider"))]
+    EmptyResponse,
 }
