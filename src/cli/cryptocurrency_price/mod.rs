@@ -34,11 +34,15 @@ impl Command {
             tokio::runtime::Runtime::new().expect("Initializing tokio runtime").block_on(async {
                 let client = Client::new();
                 let url = {
-                    let url = format!(
-                        "https://min-api.cryptocompare.com/data/pricemulti?fsyms={fsyms}&tsyms=USD",
-                        fsyms = self.cryptocurrencies.join(",")
-                    );
-                    Url::parse(&url).context(error::ParseUrlSnafu { url })?
+                    let symbols: Vec<String> =
+                        self.cryptocurrencies.iter().map(|c| format!("\"{c}USDT\"")).collect();
+                    let symbols_json = format!("[{}]", symbols.join(","));
+                    let mut url = Url::parse("https://api.binance.com/api/v3/ticker/price")
+                        .context(error::ParseUrlSnafu {
+                            url: "https://api.binance.com/api/v3/ticker/price".to_string(),
+                        })?;
+                    let _ = url.query_pairs_mut().append_pair("symbols", &symbols_json);
+                    url
                 };
 
                 let resp = client.get(url).send().await.context(error::GetResponseSnafu)?;
@@ -46,13 +50,18 @@ impl Command {
                 let payload: serde_json::Value =
                     resp.json().await.context(error::ConcatenateBuffersSnafu)?;
 
-                if let Some(prices) = payload.as_object() {
+                if let Some(prices) = payload.as_array() {
                     let result = self
                         .cryptocurrencies
                         .iter()
                         .map(|currency| {
-                            let price =
-                                prices[currency]["USD"].as_f64().expect("price must be a float");
+                            let symbol = format!("{currency}USDT");
+                            let price = prices
+                                .iter()
+                                .find(|item| item["symbol"].as_str() == Some(&symbol))
+                                .and_then(|item| item["price"].as_str())
+                                .and_then(|p| p.parse::<f64>().ok())
+                                .expect("price must be a float");
                             format!("{currency}: ${price}")
                         })
                         .collect::<Vec<_>>()
