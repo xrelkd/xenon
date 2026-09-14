@@ -22,7 +22,7 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v23
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v15
         with:
           use-gha-cache: false
 
