@@ -1,13 +1,11 @@
 mod error;
-mod market_provider;
+mod okx_provider;
 mod provider;
+mod yahoo_provider;
 
-use clap::Args;
+use clap::{Args, ValueEnum};
 
-use self::{
-    market_provider::MarketProvider,
-    provider::{Provider, ProviderKind},
-};
+use self::{okx_provider::OkxProvider, provider::Provider, yahoo_provider::YahooProvider};
 
 pub use self::error::Error;
 
@@ -45,10 +43,15 @@ impl Command {
             return Err(Error::NoAssetProvided);
         }
 
+        match self.provider {
+            ProviderKind::Yahoo => self.run_provider(&YahooProvider::new()),
+            ProviderKind::Okx => self.run_provider(&OkxProvider::new()),
+        }
+    }
+
+    fn run_provider<P: Provider>(self, provider: &P) -> Result<(), Error> {
         let ret =
             tokio::runtime::Runtime::new().expect("Initializing tokio runtime").block_on(async {
-                let provider = MarketProvider::new(self.provider);
-
                 let mut prices = Vec::with_capacity(self.assets.len());
                 for asset in &self.assets {
                     prices.push(match provider.fetch(asset).await {
@@ -78,6 +81,15 @@ impl Command {
     }
 }
 
+/// Supported market-data providers (clap-friendly).
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum ProviderKind {
+    /// Yahoo Finance: global equities, ETFs, and cryptocurrencies.
+    Yahoo,
+    /// OKX: cryptocurrencies only.
+    Okx,
+}
+
 /// Map ISO currency codes to their symbol for compact, single-token display.
 ///
 /// Covers the markets commonly traded by investors in Japan, Korea, Taiwan,
@@ -86,14 +98,14 @@ impl Command {
 /// Unknown codes are returned unchanged so the currency stays identifiable.
 fn currency_symbol(currency: &str) -> &str {
     match currency {
-        "USD" | "USDT" => "$",
-        "KRW" => "₩",
-        "JPY" | "CNY" => "¥",
-        "GBP" => "£",
         "EUR" => "€",
-        "TWD" => "NT$",
+        "GBP" => "£",
         "HKD" => "HK$",
+        "JPY" | "CNY" => "¥",
+        "KRW" => "₩",
         "SGD" => "S$",
+        "TWD" => "NT$",
+        "USD" | "USDT" => "$",
         other => other,
     }
 }
