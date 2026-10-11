@@ -6,6 +6,13 @@ use snafu::ResultExt;
 
 pub use self::error::Error;
 
+/// OKX public market-data endpoint. Unlike Binance's public API, it is not
+/// geo-restricted in this environment and requires no API key.
+const API_ENDPOINT: &str = "https://www.okx.com/api/v5/market/ticker";
+
+/// Quote currency each requested cryptocurrency is priced against.
+const QUOTE_CURRENCY: &str = "USDT";
+
 #[derive(Args, Debug)]
 pub struct Command {
     #[arg(
@@ -33,42 +40,36 @@ impl Command {
         let ret =
             tokio::runtime::Runtime::new().expect("Initializing tokio runtime").block_on(async {
                 let client = Client::new();
-                let url = {
-                    let symbols: Vec<String> =
-                        self.cryptocurrencies.iter().map(|c| format!("\"{c}USDT\"")).collect();
-                    let symbols_json = format!("[{}]", symbols.join(","));
-                    let mut url = Url::parse("https://api.binance.com/api/v3/ticker/price")
-                        .context(error::ParseUrlSnafu {
-                            url: "https://api.binance.com/api/v3/ticker/price".to_string(),
-                        })?;
-                    let _ = url.query_pairs_mut().append_pair("symbols", &symbols_json);
-                    url
-                };
 
-                let resp = client.get(url).send().await.context(error::GetResponseSnafu)?;
+                let mut prices = Vec::with_capacity(self.cryptocurrencies.len());
+                for currency in &self.cryptocurrencies {
+                    let instrument = format!("{}-{}", currency.to_uppercase(), QUOTE_CURRENCY);
+                    let mut url = Url::parse(API_ENDPOINT)
+                        .context(error::ParseUrlSnafu { url: API_ENDPOINT.to_string() })?;
+                    let _ = url.query_pairs_mut().append_pair("instId", &instrument);
 
-                let payload: serde_json::Value =
-                    resp.json().await.context(error::ConcatenateBuffersSnafu)?;
+                    let payload: serde_json::Value = client
+                        .get(url)
+                        .send()
+                        .await
+                        .context(error::GetResponseSnafu)?
+                        .json()
+                        .await
+                        .context(error::ParseResponseSnafu)?;
 
-                if let Some(prices) = payload.as_array() {
-                    let result = self
-                        .cryptocurrencies
-                        .iter()
-                        .map(|currency| {
-                            let symbol = format!("{currency}USDT");
-                            let price = prices
-                                .iter()
-                                .find(|item| item["symbol"].as_str() == Some(&symbol))
-                                .and_then(|item| item["price"].as_str())
-                                .and_then(|p| p.parse::<f64>().ok())
-                                .expect("price must be a float");
-                            format!("{currency}: ${price}")
-                        })
-                        .collect::<Vec<_>>()
-                        .join(" ");
+                    let price = payload["data"]
+                        .as_array()
+                        .and_then(|data| data.first())
+                        .and_then(|ticker| ticker["last"].as_str())
+                        .and_then(|last| last.parse::<f64>().ok());
 
-                    println!("{result}");
+                    prices.push(price.map_or_else(
+                        || format!("{currency}: n/a"),
+                        |price| format!("{currency}: ${price}"),
+                    ));
                 }
+
+                println!("{}", prices.join(" "));
 
                 Ok(())
             });
