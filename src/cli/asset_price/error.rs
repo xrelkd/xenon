@@ -3,8 +3,8 @@ use snafu::Snafu;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub))]
 pub enum Error {
-    #[snafu(display("No cryptocurrency symbol is provided"))]
-    NoCryptocurrencyProvided,
+    #[snafu(display("No asset symbol is provided"))]
+    NoAssetProvided,
 
     #[snafu(display("Error occurs while getting HTTP response, error: {source}"))]
     GetResponse { source: reqwest::Error },

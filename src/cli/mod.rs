@@ -1,4 +1,4 @@
-mod cryptocurrency_price;
+mod asset_price;
 mod myip;
 mod rename;
 
@@ -28,8 +28,8 @@ pub enum Commands {
     #[command(name = "rename-file", about = "Rename a file")]
     RenameFile(rename::Command),
 
-    #[command(name = "cryptocurrency-price", about = "Show cryptocurrency price")]
-    CryptocurrencyPrice(cryptocurrency_price::Command),
+    #[command(name = "asset-price", about = "Show price of a stock, ETF, or cryptocurrency")]
+    AssetPrice(asset_price::Command),
 }
 
 impl Cli {
@@ -48,7 +48,7 @@ impl Cli {
             }
             Commands::MyIp(cmd) => Ok(cmd.run()?),
             Commands::RenameFile(cmd) => Ok(cmd.run()?),
-            Commands::CryptocurrencyPrice(cmd) => Ok(cmd.run()?),
+            Commands::AssetPrice(cmd) => Ok(cmd.run()?),
         }
     }
 }
@@ -67,5 +67,11 @@ mod tests {
     #[test]
     fn test_cli_simple() {
         matches!(Cli::parse_from(["program_name", "version"]).commands, Commands::Version);
+    }
+
+    #[test]
+    fn test_cli_asset_price() {
+        let cli = Cli::parse_from(["program_name", "asset-price", "CSPX,BTC,1321.jp"]);
+        assert!(matches!(cli.commands, Commands::AssetPrice(_)));
     }
 }
